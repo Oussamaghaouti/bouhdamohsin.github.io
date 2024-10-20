@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Grandes Écoles d'IRFANE</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #1e90ff;
+            margin-top: 20px;
+            text-shadow: 2px 2px #e0e0e0;
+        }
+
+        h3 {
+            text-align: center;
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        #map {
+            height: 500px;
+            width: 90%;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .legend {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            position: absolute;
+            bottom: 30px;
+            left: 10px;
+            z-index: 1000;
+            font-size: 14px;
+        }
+
+        .legend h4 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: bold;
+            text-shadow: 1px 1px #f0f0f0;
+        }
+
+        .legend p {
+            margin: 5px 0;
+        }
+
+        .legend span {
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+
+        .leaflet-marker-icon {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1><i class="fas fa-graduation-cap"></i> Les Grandes Écoles d'IRFANE</h1>
+<div id="map"></div>
+<div class="legend">
+    <h4><i class="fas fa-info-circle"></i> Légende</h4>
+    <p><span style="color: blue;">●</span> Institut</p>
+    <p><span style="color: green;">●</span> École</p>
+    <p><span style="color: red;">●</span> Faculté</p>
+	<p><span style="color: rgb(182, 18, 160);">●</span> Université</p>
+</div>
+
+<script>
+    var map = L.map('map').setView([33.98062970755682, -6.8648065817105515], 14);
+
+    var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    var schools = [
+        {
+            name: "Institut Agronomique et Vétérinaire Hassan II (IAV)",
+            coords: [33.97702739317681, -6.8666858],
+            type: "Institut",
+            description: "L’Institut agronomique et vétérinaire Hassan-II, abrégé en IAV Hassan-II voire IAV, est une école d'ingénieurs et de médecins vétérinaires marocaine située à Rabat et créée en 1966.",
+            website: "http://www.iav.ac.ma"
+        },
+        {
+            name: "Institut national des postes et télécommunications (INPT)",
+            coords: [33.98059586205663, -6.866662084654606],
+            type: "Institut",
+            description: "L'Institut national des postes et télécommunications, situé à Rabat, capitale administrative du Maroc, est l'une des grandes écoles d’ingénieurs marocaines. Elle est attachée à l'ANRT et offre une formation polyvalente dans le domaine des technologies de l'information et de la communication.",
+            website: "https://www.inpt.ac.ma/"
+        },
+        {
+            name: "Faculté de Médecine Dentaire (FMD)",
+            coords: [33.98124998918436, -6.870338915345394],
+            type: "Faculté",
+            description: "La Faculté de médecine dentaire de Rabat est un établissement d'enseignement supérieur public marocain de médecine dentaire créé en 1981, il est affilié à l'université Mohammed V de Rabat.",
+            website: "http://fmd.um5.ac.ma/"
+        },
+		
+        {
+            name: "Institut Supérieur d’Art Dramatique et d’Animation Culturelle (ISADAC)",
+            coords: [33.97757400109706, -6.871609230690787],
+            type: "Institut",
+            description: "Institut Supérieur d’Art Dramatique et d’Animation Culturelle Rabat- est un établissement de formation, d’étude et de recherche dans tous les domaines du théâtre, L’ISADAC  Rabat est créé au 18 janvier 1985. Il est placé sous la tutelle du Ministère de la Culture.",
+            website: "https://portail.isadac.ma/"
+        },
+		{
+            name: "Université Internationale Abulcasis des Sciences de la Santé (UIASS)",
+            coords: [33.97792387455374, -6.869698369309213],
+            type: "Université",
+            description: "L'Université Internationale Abulcasis des Sciences de la santé, est une université marocaine semi-publique créée en juin 2014 à Rabat, par la Fondation Cheikh Zaïd, en partenariat avec le Ministère marocain de l'Enseignement Supérieur, de la Recherche Scientifique et de la Formation des Cadres.",
+            website: "https://www.uiass.ma/presentation-etablissment/"
+        },
+		{
+            name: "Institut National des Sciences de l'Archéologie et du Patrimoine (INSAP)",
+            coords: [33.97786911112158, -6.871748584654607],
+            type: "Institut",
+            description: "L'Institut national des sciences de l'archéologie et du patrimoine est une institution marocaine sous tutelle du Ministère de la Jeunesse, de la Culture et de la Communication, qui forme des cadres dans les domaines de l'archéologie et du patrimoine. Créé en 1985 à Rabat.",
+            website: "https://insap.ac.ma/"
+        },
+		{
+            name: "Institut national de statistique et d'économie appliquée (INSEA)",
+            coords: [33.982691739682394, -6.862877569309212],
+            type: "Institut",
+            description: "L'Institut national de statistique et d'économie appliquée est l'une des grandes écoles d'ingénieurs marocaines située à Rabat et créée en 1961. Il s'est substitué, par décret royal, au Centre de formation d'ingénieurs des travaux statistiques en 1967 grâce à l'appui de la Commission économique pour l'Afrique.",
+            website: "https://insea.ac.ma/"
+        },
+		{
+            name: "Faculté de Médecine et de Pharmacie (FMP)",
+            coords: [33.98424511403402, -6.855884484654607],
+            type: "Faculté",
+            description: "La Faculté de Médecine et de Pharmacie de Rabat est un établissement d'enseignement supérieur public marocain de médecine et de pharmacie créé en 1962 ; il est affilié à l'Université Mohammed V de Rabat.",
+            website: "http://fmp.um5.ac.ma/"
+        },
+		{
+            name: "Ecole Nationale d’Architecture (ENA)",
+            coords: [33.987286454202476, -6.861411530690787],
+            type: "École",
+            description: "L'École nationale d'architecture est un établissement public d'enseignement de l'architecture. Il est placé sous la tutelle du Ministère délégué auprès du Premier ministre chargé de l'habitat et de l'urbanisme.",
+            website: "https://www.enarabat.ac.ma/"
+        },
+		{
+            name: "Institut National d'Aménagement et d'Urbanisme (INAU)",
+            coords: [33.98795264820526, -6.860438369309216],
+            type: "Institut",
+            description: "Créé en 1981, l’Institut National d’Aménagement et d’Urbanisme est un établissement public de l’enseignement supérieur qui forme des professionnels et des cadres de haut niveau spécialisés dans les domaines de l’aménagement et de l’urbanisme.",
+            website: "https://inau.ac.ma/"
+        },
+		{
+            name: "École Nationale Supérieure d'Informatique et d'Analyse des Systèmes (ENSIAS)",
+            coords: [33.98500570470028, -6.86747315396382],
+            type: "École",
+            description: "L’École Nationale Supérieure d’Informatique et d’Analyse des Systèmes est l'une des grandes écoles d'ingénieurs marocaines rattachée à l'université Mohammed V de Rabat. Fondée en 1992, elle est spécialisée en informatique.",
+            website: "http://ensias.um5.ac.ma/"
+        },
+		{
+            name: "Université Mohammed VI des Sciences et de la Santé (UM6SS)",
+            coords: [33.986871136875166, -6.864231761381574],
+            type: "Université",
+            description: "L’Université Mohammed VI des Sciences de la Santé (UM6SS), qui a eu l’insigne honneur d’être inaugurée par Sa Majesté le Roi Mohammed VI le 15 décembre 2016, vise à contribuer activement à apporter des réponses aux hautes orientations tracées par notre Souverain, notamment lors de son discours à la 2ème conférence de la Santé (Marrakech, 1er Juillet 2013).",
+            website: "https://um6ss.ma/"
+        },
+		{
+            name: "Institut Supérieur de l'Information et de la Communication (ISIC)",
+            coords: [33.98442165057264, -6.865131215345393],
+            type: "Institut",
+            description: "L'Institut supérieur de l'information et de la communication, est un établissement public marocain de formation aux métiers de journalisme et de communication. Crée en 1969, il se situé à Rabat.",
+            website: "https://isic.ac.ma/fr/"
+        },
+		{
+            name: "École des sciences de l'information (ESI)",
+            coords: [33.98282829433307, -6.8654474306907876],
+            type: "École",
+            description: "L'École des sciences de l'information, est une grande école publiqued'ingénieurs située à Rabat au Maroc. Elle est sous la tutelle du haut-commissariat au Plan.",
+            website: "http://www.esi.ac.ma/"
+        },
+		{
+            name: "Ecole Normale Supérieure (ENS)",
+            coords: [33.98251767166882, -6.8253718904153144],
+            type: "École",
+            description: "L'Ecole Normale Supérieure ENS Rabat est une école supérieure publique qui assure la formation des enseignants du Secondaire de second cycle.",
+            website: "http://ens.um5.ac.ma/"
+        },
+		{
+            name: "Faculté des Sciences Juridiques, Economiques et Sociales (FSJES)",
+            coords: [33.98747677957631, -6.864261233631855],
+            type: "Faculté",
+            description: "La FSJES Rabat Souissi est une faculté qui offre des formations du droit, économie et gestion",
+            website: "http://fsjes-souissi.um5.ac.ma/"
+        }
+    ];
+
+    schools.forEach(function(school) {
+        var markerColor;
+        switch (school.type) {
+            case "Institut":
+                markerColor = "blue";
+                break;
+            case "École":
+                markerColor = "green";
+                break;
+            case "Faculté":
+                markerColor = "red";
+				break;
+			case "Université":
+                markerColor = "rgb(182, 18, 160)";
+                break;
+            default:
+                markerColor = "gray";
+        }
+        var marker = L.circleMarker(school.coords, {
+            radius: 6,
+            fillColor: markerColor,
+            color: markerColor,
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.6
+        }).addTo(map);
+
+        marker.bindPopup("<b>" + school.name + "</b><br>" + school.description + 
+            "<br><a href='" + school.website + "' target='_blank'>Site officiel</a>");
+    });
+</script>
+
+</body>
+</html>
